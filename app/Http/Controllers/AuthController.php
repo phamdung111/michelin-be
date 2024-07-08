@@ -2,9 +2,10 @@
   
 namespace App\Http\Controllers;
   
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use Validator;
+use App\Models\User;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
   
   
 class AuthController extends Controller
@@ -23,17 +24,22 @@ class AuthController extends Controller
         ]);
   
         if($validator->fails()){
-            return response()->json($validator->errors()->toJson(), 400);
+            return response()->json(['errors'=> $validator->errors()],400);
         }
-  
-        $user = new User;
-        $user->name = request()->name;
-        $user->email = request()->email;
-        $user->password = bcrypt(request()->password);
-        $user->avatar = '/user-placeholder.png';
-        $user->save();
-  
-        return response()->json($user, 201);
+        try {
+            $user = new User;
+            $user->name = request()->name;
+            $user->email = request()->email;
+            $user->password = bcrypt(request()->password);
+            $user->avatar = '/user-placeholder.png';
+            $user->save();
+
+            $credentials = request(['email', 'password']);
+            $token = auth()->attempt($credentials);
+            return response()->json($this->respondWithToken($token), 201);
+        }catch(\Exception $e){
+            return response()->json($e->getMessage(), 400);
+        }
     }
   
   
@@ -58,9 +64,20 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me()
+    public function profile()
     {
-        return response()->json(auth()->user());
+        return response()->json(
+            [
+                'id'=> auth()->user()->id,
+                'name' => auth()->user()->name,
+                'email'=> auth()->user()->email,
+                'location'=> auth()->user()->location,
+                'avatar'=> Storage::url(auth()->user()->avatar),
+                'role' => auth()->user()->role,
+                'phone'=> auth()->user()->phone,
+                'description'=> auth()->user()->description,
+            ]
+        );
     }
   
     /**

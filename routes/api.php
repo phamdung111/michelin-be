@@ -1,5 +1,6 @@
 <?php
  
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
  
@@ -11,5 +12,8 @@ Route::group([
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api')->name('logout');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
-    Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
+    Route::post('/profile', [AuthController::class, 'profile'])->middleware('auth:api')->name('me');
+    Route::post('/update-profile', [UserController::class, 'edit'])->middleware('auth:api')->name('me');
+    Route::post('/update-avatar', [UserController::class, 'updateAvatar'])->middleware('auth:api')->name('me');
+
 });
