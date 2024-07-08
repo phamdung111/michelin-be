@@ -2,9 +2,10 @@
   
 namespace App\Http\Controllers;
   
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use Validator;
+use App\Models\User;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
   
   
 class AuthController extends Controller
@@ -71,7 +72,7 @@ class AuthController extends Controller
                 'name' => auth()->user()->name,
                 'email'=> auth()->user()->email,
                 'location'=> auth()->user()->location,
-                'avatar'=> url('/') . auth()->user()->avatar,
+                'avatar'=> Storage::url(auth()->user()->avatar),
                 'role' => auth()->user()->role,
                 'phone'=> auth()->user()->phone,
                 'description'=> auth()->user()->description,

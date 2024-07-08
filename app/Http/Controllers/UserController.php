@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -53,18 +54,26 @@ class UserController extends Controller
         
         try {
             $user = User::find(auth()->user()->id);
+            $errors = [];
             if($currentPassword) {
                 if (!Hash::check($currentPassword, $user->password)) {
-                    return response()->json(['error' => 'current password not match'], 400);
+                    $errors['currentPassword'] = 'current password not match';
                 }
-                else {
-                    if ($newPassword !== $repeatPassword) {
-                        return response()->json(['error' => 'password not match'], 400);
-                    }
-                    else {
-                        $user->password = Hash::make($newPassword);
-                    }
+                if(strlen($newPassword) < 8){ 
+                    $errors['newPassword'] = 'password at least 8 characters';
                 }
+                if ($newPassword !== $repeatPassword || $repeatPassword === '') {
+                    $errors['repeatPassword'] = 'password not match';
+                }
+                if(Hash::check($newPassword, $user->password)){
+                    $errors['newPassword'] = 'new password matches the current password';
+                }
+            }
+            if(!empty($errors)){
+                return response()->json(['errors'=>$errors],400);
+                }
+            else{
+                $user->password = bcrypt($newPassword);
             }
             $user->name = $request->input('name');
             $user->email = $request->input('email');
@@ -85,6 +94,25 @@ class UserController extends Controller
     {
         
     }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate(['image' => 'required|mimes:png,jpg,jpeg']);
+        $user = User::find(auth()->user()->id);
+         try{
+            $image = $request->file('image');
+            $oldAvatar = $user->avatar;
+            $name = $image->hashName();
+            Storage::putFileAs('avatars', $image, $name);
+            $user->avatar = '/avatars/'. $name;
+            $user->save();
+            Storage::delete($oldAvatar);
+            return response()->json(['status'=>'success'],200);
+        }catch(\Exception $e) {
+            return response()->json(['error'=>$e->getMessage()],400);
+        }
+    }
+
 
     /**
      * Remove the specified resource from storage.

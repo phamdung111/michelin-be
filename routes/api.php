@@ -14,4 +14,6 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
     Route::post('/profile', [AuthController::class, 'profile'])->middleware('auth:api')->name('me');
     Route::post('/update-profile', [UserController::class, 'edit'])->middleware('auth:api')->name('me');
+    Route::post('/update-avatar', [UserController::class, 'updateAvatar'])->middleware('auth:api')->name('me');
+
 });
