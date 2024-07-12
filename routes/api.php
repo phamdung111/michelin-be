@@ -1,5 +1,6 @@
 <?php
  
+use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -15,5 +16,7 @@ Route::group([
     Route::post('/profile', [AuthController::class, 'profile'])->middleware('auth:api')->name('me');
     Route::post('/update-profile', [UserController::class, 'edit'])->middleware('auth:api')->name('me');
     Route::post('/update-avatar', [UserController::class, 'updateAvatar'])->middleware('auth:api')->name('me');
-
+    Route::post('/new-restaurant', [RestaurantController::class, 'store'])->middleware('auth:api')->name('me');
+    Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
+    Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
 });

@@ -12,13 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('restaurants', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('location');
+            $table->string('status');
+            $table->string('address')->unique();
             $table->string('phone');
             $table->string('email');
-            $table->string('description')->nullable();
-            $table->boolean('allow_ordering')->nullable();
+            $table->string('description');
+            $table->boolean('allow_booking');
             $table->timestamps();
         });
     }
@@ -26,7 +29,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down(): void 
     {
         Schema::dropIfExists('restaurants');
     }

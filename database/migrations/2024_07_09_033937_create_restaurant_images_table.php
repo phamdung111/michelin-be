@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('favorites', function (Blueprint $table) {
+        Schema::create('restaurant_images', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
-            $table->string('user_id');
-            $table->string('restaurant_id');
+            $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
+            $table->string('image');
             $table->timestamps();
-
-            // $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            // $table->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade');
         });
     }
 
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('favorites');
+        Schema::dropIfExists('restaurant_images');
     }
 };
