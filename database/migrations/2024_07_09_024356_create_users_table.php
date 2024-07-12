@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
-            $table->unsignedBigInteger('role_id')->nullable();
+            $table->foreignId('role_id')->constrained('roles')->onDelete('restrict');
             $table->string('name');
             $table->string('email')->unique();
             $table->string('avatar');
@@ -24,8 +25,6 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-
-            // $table->foreign('role_id')->references('id')->on('roles');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

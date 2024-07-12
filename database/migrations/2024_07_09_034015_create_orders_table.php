@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
-            $table->string('role_name');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('orders');
     }
 };

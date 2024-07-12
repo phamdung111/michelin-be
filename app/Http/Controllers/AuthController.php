@@ -2,6 +2,7 @@
   
 namespace App\Http\Controllers;
   
+use App\Models\Role;
 use Validator;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -32,6 +33,7 @@ class AuthController extends Controller
             $user->email = request()->email;
             $user->password = bcrypt(request()->password);
             $user->avatar = '/user-placeholder.png';
+            $user->role_id = '1';
             $user->save();
 
             $credentials = request(['email', 'password']);
@@ -73,7 +75,7 @@ class AuthController extends Controller
                 'email'=> auth()->user()->email,
                 'location'=> auth()->user()->location,
                 'avatar'=> Storage::url(auth()->user()->avatar),
-                'role' => auth()->user()->role,
+                'role' => Role::where('id', auth()->user()->role_id)->value('name'),
                 'phone'=> auth()->user()->phone,
                 'description'=> auth()->user()->description,
             ]
