@@ -1,5 +1,6 @@
 <?php
  
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +20,10 @@ Route::group([
     Route::post('/new-restaurant', [RestaurantController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
     Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
-});
 
+    Route::post('/like', [FavoriteController::class, 'store'])->middleware('auth:api')->name('me');
+    Route::post('/check', [FavoriteController::class, 'check'])->middleware('auth:api')->name('me');
+    Route::post('/un-like', [FavoriteController::class, 'destroy'])->middleware('auth:api')->name('me');
+});
 
 Route::get('/restaurants', [RestaurantController::class, 'restaurants']);
