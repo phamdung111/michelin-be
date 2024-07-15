@@ -20,3 +20,6 @@ Route::group([
     Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
     Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
 });
+
+
+Route::get('/restaurants', [RestaurantController::class, 'restaurants']);
