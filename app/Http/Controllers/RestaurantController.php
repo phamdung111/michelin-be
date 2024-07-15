@@ -128,14 +128,6 @@ class RestaurantController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Restaurant $restaurant)
-    {
-        
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, RestaurantImageController $restaurantImageController)
@@ -180,6 +172,38 @@ class RestaurantController extends Controller
         }
         
 
+    }
+    
+    public function restaurants(){
+        $restaurants = Restaurant::where('status', 'approved')
+                ->with(['images'])
+                ->orderByDesc('created_at')
+                ->limit(8)
+                ->get();
+        if ($restaurants->isEmpty()) {
+            return response()->json(['message' => 'No restaurants'], 200);
+        }
+
+        $restaurantsData = $restaurants->map(function ($restaurant) {
+            return [
+                'id'=> $restaurant->id,
+                'name' => $restaurant->name,
+                'status'=> $restaurant->status,
+                'address' => $restaurant->address,
+                'phone'=> $restaurant->phone,
+                'email' => $restaurant->email,
+                'description'=> $restaurant->description,
+                'allow_booking'=>(bool) $restaurant->allow_booking,
+                'date' => date('H:i d/m/Y', strtotime($restaurant->created_at)),
+                'images' => $restaurant->images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'image' => Storage::url($image->image)
+                    ];
+                })->toArray()
+            ];
+        });
+        return response()->json($restaurantsData,200);
     }
 
     /**
