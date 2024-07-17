@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
-use App\Models\RestaurantImage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
@@ -206,6 +205,33 @@ class RestaurantController extends Controller
         return response()->json($restaurantsData,200);
     }
 
+    public function restaurant($id){
+        $restaurant = Restaurant::where('id', $id,)
+                ->where('status', 'approved')
+                ->with(['images'])
+                ->first();
+        if (!$restaurant) {
+            return response()->json(['message' => 'No restaurant'], 200);
+        }
+        return response()->json([
+            'id'=> $restaurant->id,
+            'name' => $restaurant->name,
+            'status'=> $restaurant->status,
+            'address' => $restaurant->address,
+            'phone'=> $restaurant->phone,
+            'email' => $restaurant->email,
+            'description'=> $restaurant->description,
+            'allow_booking'=>(bool) $restaurant->allow_booking,
+            'date' => date('H:i d/m/Y', strtotime($restaurant->created_at)),
+            'images' => $restaurant->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'image' => Storage::url($image->image)
+                ];
+            })->toArray()
+        ],200);
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -213,4 +239,5 @@ class RestaurantController extends Controller
     {
         //
     }
+
 }
