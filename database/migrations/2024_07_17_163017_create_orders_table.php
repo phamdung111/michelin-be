@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();
+            $table->dateTime('order_time');
+            $table->bigInteger('guest');
+            $table->string('status');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
             $table->timestamps();

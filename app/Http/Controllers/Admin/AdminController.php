@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -53,17 +54,20 @@ class AdminController extends Controller
     }
     public function permissionRestaurants(Request $request){
         $data = $request->all();
+        if(auth()->user()->id === 1){
+            try{
+                foreach ($data as $restaurant_id => $restaurant_status) {
 
-        try{
-            foreach ($data as $restaurant_id => $restaurant_status) {
-                
-                $restaurant = Restaurant::find($restaurant_id);
-                $restaurant->status = $restaurant_status;
-                $restaurant->save();
+                    $restaurant = Restaurant::find($restaurant_id);
+                    $restaurant->status = $restaurant_status;
+                    $restaurant->save();
+                }
+                return response()->json(['status'=> 'success'],200);
+            }catch(\Exception $e) {
+                return response()->json(['error'=> $e->getMessage()], 400);
             }
-            return response()->json(['status'=> 'success'],200);
-        }catch(\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 400);
+        }else{
+            return response()->json(['error'=> 'permission'], 400);
         }
         
     }

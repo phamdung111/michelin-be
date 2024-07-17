@@ -13,4 +13,7 @@ class AdminPolicy
     {
         //
     }
+    public function restaurants(User $user){
+        return $user->hasRole("admin");
+    }
 }
