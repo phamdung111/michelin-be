@@ -22,9 +22,12 @@ Route::group([
     Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
     Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
 
+
     Route::post('/like', [FavoriteController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/check', [FavoriteController::class, 'check'])->middleware('auth:api')->name('me');
     Route::post('/un-like', [FavoriteController::class, 'destroy'])->middleware('auth:api')->name('me');
+    Route::post('/favorites', [FavoriteController::class, 'favoritesByUser'])->middleware('auth:api')->name('me');
+
 
     Route::post('/order', [OrderController::class, 'store'])->middleware('auth:api')->name('me');
 
