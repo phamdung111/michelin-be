@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Favorite;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FavoriteController extends Controller
 {
@@ -52,5 +53,32 @@ class FavoriteController extends Controller
             $favorite->delete();
         }
         return response()->json(false,200);
+    }
+
+    public function favoritesByUser(){
+        $favorites = Favorite::where('user_id', auth()->user()->id)
+            ->with('restaurant')
+            ->with('restaurant.images')
+            ->get();
+        if($favorites) {
+            $favoritesRestaurant = $favorites->map(function ($favorite) {
+                return [
+                    'id'=> $favorite->id,
+                    'restaurant'=> [
+                        'id' => $favorite->restaurant->id,
+                        'name' => $favorite->restaurant->name,
+                        'address' => $favorite->restaurant->address,
+                        'description' => $favorite->restaurant->description,
+                        'images'=> $favorite->restaurant->images->map(function ($image) {
+                            return 
+                                Storage::url($image->image);
+                        }),
+                    ]
+                ];
+            });
+            return response()->json($favoritesRestaurant,200);
+        } else {
+            return response()->json(['status' => 'You have no favorites yet'], 200);
+        }
     }
 }
