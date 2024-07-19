@@ -12,22 +12,6 @@ use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -55,9 +39,6 @@ class OrderController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function orderByRestaurantToday()
     {   
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
@@ -114,6 +95,53 @@ class OrderController extends Controller
         return response()->json($countOrders,200);
     }
 
+    public function oldOrderByRestaurant(){
+        $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
+        $today = date('Y-m-d');
+
+        $orders = Order::whereDate('order_time', '<', $today)
+            ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
+            ->with('user')
+            ->with('restaurant')
+            ->with('restaurant.images')
+            ->orderBy('order_time')
+            ->paginate(20);
+        $orderData = $orders->map(function ($order){
+            return [
+                'id'=> $order->id,
+                'guests'=> $order->guest,
+                'status'=> $order->status,
+                'order_time'=> $order->order_time,
+                'restaurant'=> [
+                    'id' => $order->restaurant->id,
+                    'name'=> $order->restaurant->name,
+                    'address'=> $order->restaurant->address,
+                    'phone'=> $order->restaurant->phone,
+                    'description' => $order->restaurant->description,
+                    'images'=> $order->restaurant->images->map(function ($image) {
+                            return 
+                                Storage::url($image->image);
+                        }),
+                    ],
+                'userOrdered'=> [
+                    'id'=> $order->user->id,
+                    'name'=> $order->user->name,
+                    'email'=> $order->user->email,
+                    'phone'=> $order->user->phone,
+                    'location' => $order->user->location,
+                    'avatar' => Storage::url($order->user->avatar),
+                ]
+            ];
+        });
+        return response()->json([
+            'orders' => $orderData,
+            'current_page' => $orders->currentPage(),
+            'per_page' => $orders->perPage(),
+            'total' => $orders->total(),
+            'last_page' => $orders->lastPage()
+            ],200);
+    }
+
     public function changeStatus(Request $request){
         $validator = Validator::make($request->all(), [
             'orderId'=> 'required',
@@ -139,6 +167,8 @@ class OrderController extends Controller
             return response()->json(['errors'=> $e->getMessage()],400);
         }
     }
+
+    
     /**
      * Show the form for editing the specified resource.
      */
