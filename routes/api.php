@@ -33,9 +33,9 @@ Route::group([
     Route::post('/count-orders-today', [OrderController::class, 'countOrdersToday'])->middleware('auth:api')->name('me');
     Route::post('/order-restaurant-today', [OrderController::class, 'orderByRestaurantToday'])->middleware('auth:api')->name('me');
     Route::post('/old-order-restaurant', [OrderController::class, 'oldOrderByRestaurant'])->middleware('auth:api')->name('me');
+    Route::post('/future-order-restaurant', [OrderController::class, 'futureOrderByRestaurant'])->middleware('auth:api')->name('me');
+
     Route::post('/change-status', [OrderController::class, 'changeStatus'])->middleware('auth:api')->name('me');
-
-
 });
 
 Route::get('/restaurants', [RestaurantController::class, 'restaurants']);
