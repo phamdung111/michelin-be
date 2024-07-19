@@ -30,6 +30,10 @@ Route::group([
 
 
     Route::post('/order', [OrderController::class, 'store'])->middleware('auth:api')->name('me');
+    Route::post('/count-orders-today', [OrderController::class, 'countOrdersToday'])->middleware('auth:api')->name('me');
+    Route::post('/order-restaurant-today', [OrderController::class, 'orderByRestaurantToday'])->middleware('auth:api')->name('me');
+    Route::post('/change-status', [OrderController::class, 'changeStatus'])->middleware('auth:api')->name('me');
+
 
 });
 
