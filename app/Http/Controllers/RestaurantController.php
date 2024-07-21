@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
+use App\Models\RestaurantImage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
@@ -222,9 +223,31 @@ class RestaurantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Restaurant $restaurant)
+    public function destroy(Request $request,RestaurantImageController $restaurantImageController)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'restaurantId'=> 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message'=> $validator->errors()],400);
+        }
+        $restaurant = Restaurant::where('id', $request->restaurantId)->first();
+        if (!$restaurant) {
+            return response()->json(['message'=> 'Not found the restaurant'],400);
+        }else if( $restaurant->user_id != auth()->user()->id ) {
+            return response()->json(['message'=> 'Authorization'],403);
+        }else{
+            try{
+                $restaurantImages = RestaurantImage::where('restaurant_id', $restaurant->id)->get();
+                    foreach ($restaurantImages as $image) {
+                        $restaurantImageController->destroy($image->id);
+                    }
+                $restaurant->delete();
+                return response()->json(true,200);
+            }catch(\Exception $e){
+                return response()->json(['message'=> $e->getMessage()],400);
+            }
+        }
     }
 
 }

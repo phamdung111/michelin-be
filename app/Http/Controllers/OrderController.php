@@ -30,7 +30,7 @@ class OrderController extends Controller
             $order->order_time =  $request->time;
             $order->user_id = auth()->user()->id;
             $order->guest = $request->guests;
-            $order->status = 'pending';
+            $order->status = 'booking';
             $order->save();
             return response()->json(['status'=> 'success'],200);
         }catch (\Exception $e) {
@@ -42,7 +42,7 @@ class OrderController extends Controller
     public function orderByRestaurantToday()
     {   
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d');
+        $today = date('Y-m-d H:i');
 
         $orders = Order::whereDate('order_time', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
@@ -88,7 +88,7 @@ class OrderController extends Controller
     }
     public function countOrdersToday(Request $request){
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d');
+        $today = date('Y-m-d H:i');
         $countOrders = Order::whereDate('order_time', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
             ->count();
@@ -97,7 +97,7 @@ class OrderController extends Controller
 
     public function oldOrderByRestaurant(){
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d');
+        $today = date('Y-m-d H:i');
 
         $orders = Order::whereDate('order_time', '<', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
@@ -143,7 +143,7 @@ class OrderController extends Controller
     }
     public function futureOrderByRestaurant(Request $request){
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d');
+        $today = date('Y-m-d H:i');
 
         $orders = Order::whereDate('order_time', '>', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
@@ -190,7 +190,7 @@ class OrderController extends Controller
     public function changeStatus(Request $request){
         $validator = Validator::make($request->all(), [
             'orderId'=> 'required',
-            'status'=> 'required|in:done,pending,cancel',
+            'status'=> 'required|in:done,booking,cancel',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -213,28 +213,72 @@ class OrderController extends Controller
         }
     }
 
-    
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function orderByUser(){
+        try{
+            $today = date('Y-m-d H:i');
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+            $orders = Order::where('order_time','>=',$today)
+                ->with('restaurant')
+                ->with('restaurant.images')
+                ->orderBy('order_time')
+                ->paginate(20);
+ 
+            $ordersData = $orders->map(function($order){
+                return [
+                    'id'=> $order->id,
+                    'time'=> Carbon::parse($order->order_time)->format('H:i Y-m-d'),
+                    'status'=> $order->status,
+                    'restaurant' => [
+                        'id'=> $order->restaurant->id,
+                        'name'=> $order->restaurant->name,
+                        'phone'=> $order->restaurant->phone,
+                        'address'=> $order->restaurant->address,
+                        'images'=> $order->restaurant->images->map(function ($image){
+                            return Storage::url($image->image);
+                        }),
+                    ]
+                ];
+            });
+            return response()->json([
+                'orders' => $ordersData,
+                'current_page' => $orders->currentPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+                'last_page' => $orders->lastPage()
+            ],200);
+        }catch(\Exception $e){
+            return response()->json(['errors'=> $e->getMessage()],400);
+        }
+        
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function cancelStatus(Request $request){
+        $validator = Validator::make($request->all(),[
+            'orderId' =>'required',
+        ]);
+        if($validator->fails()){
+            return response()->json(['errors' => $validator->errors()], 422);
+        };
+        try{
+            $order = Order::findOrFail($request->orderId);
+            if($order->user_id === auth()->user()->id){
+                $order->status = 'cancel';
+                $order->save();
+                return response()->json(true,200);
+            }else{
+                return response()->json(['message'=>'authorization'],403);
+            }
+        }catch(\Exception $e){
+            return response()->json(['errors'=> $e->getMessage()],400);
+        }
+    }
     public function destroy(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        try{
+            $order->delete();
+            return response()->json(true,200);
+        }catch(\Exception $e){
+            return response()->json(['errors'=> $e->getMessage()],400);
+        }
     }
 }
