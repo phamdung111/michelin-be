@@ -21,19 +21,20 @@ Route::group([
     Route::post('/new-restaurant', [RestaurantController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
     Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
-
+    Route::post('/delete-restaurant', [RestaurantController::class, 'destroy'])->middleware('auth:api')->name('me');
 
     Route::post('/like', [FavoriteController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/check', [FavoriteController::class, 'check'])->middleware('auth:api')->name('me');
     Route::post('/un-like', [FavoriteController::class, 'destroy'])->middleware('auth:api')->name('me');
     Route::post('/favorites', [FavoriteController::class, 'favoritesByUser'])->middleware('auth:api')->name('me');
 
-
     Route::post('/order', [OrderController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/count-orders-today', [OrderController::class, 'countOrdersToday'])->middleware('auth:api')->name('me');
     Route::post('/order-restaurant-today', [OrderController::class, 'orderByRestaurantToday'])->middleware('auth:api')->name('me');
     Route::post('/old-order-restaurant', [OrderController::class, 'oldOrderByRestaurant'])->middleware('auth:api')->name('me');
     Route::post('/future-order-restaurant', [OrderController::class, 'futureOrderByRestaurant'])->middleware('auth:api')->name('me');
+    Route::post('/orders-user', [OrderController::class, 'orderByUser'])->middleware('auth:api')->name('me');
+    Route::post('/user-cancel-order', [OrderController::class, 'cancelStatus'])->middleware('auth:api')->name('me');
 
     Route::post('/change-status', [OrderController::class, 'changeStatus'])->middleware('auth:api')->name('me');
 });
