@@ -39,6 +39,6 @@ Route::group([
     Route::post('/change-status', [OrderController::class, 'changeStatus'])->middleware('auth:api')->name('me');
 });
 
-Route::get('/restaurants', [RestaurantController::class, 'restaurants']);
+Route::post('/restaurants', [RestaurantController::class, 'restaurants']);
 Route::get('/restaurant/{id}', [RestaurantController::class, 'restaurant']);
 

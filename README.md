@@ -1,4 +1,6 @@
+Modify Env variable
 cp .env.example .env
+
 composer require laravel/sail --dev : setup laravel sail(install if system can't laravel sail)
 php artisan sail:install : setup environment for the first time
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)' : alias for sail
@@ -10,3 +12,7 @@ sail down: stop docker containers
 sail restart: restart docker containers
 sail start
 sail stop
+
+admin
+email: admin@michelin.com
+password: admin@123
