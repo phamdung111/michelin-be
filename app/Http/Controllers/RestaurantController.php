@@ -161,12 +161,12 @@ class RestaurantController extends Controller
 
     }
     
-    public function restaurants(){
+    public function restaurants(Request $request){
+        $perPage = $request->perPage;
         $restaurants = Restaurant::where('status', 'approved')
                 ->with(['images'])
                 ->orderByDesc('created_at')
-                ->limit(8)
-                ->get();
+                ->paginate($perPage);
         if ($restaurants->isEmpty()) {
             return response()->json(['message' => 'No restaurants'], 200);
         }
@@ -190,7 +190,13 @@ class RestaurantController extends Controller
                 })->toArray()
             ];
         });
-        return response()->json($restaurantsData,200);
+        return response()->json([
+            'items' => $restaurantsData,
+            'current_page' => $restaurants->currentPage(),
+            'per_page' => $restaurants->perPage(),
+            'total' => $restaurants->total(),
+            'last_page' => $restaurants->lastPage()
+        ],200);
     }
 
     public function restaurant($id){

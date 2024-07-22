@@ -14,6 +14,7 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -41,8 +42,9 @@ class OrderController extends Controller
 
     public function orderByRestaurantToday()
     {   
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d H:i');
+        $today = date('Y-m-d');
 
         $orders = Order::whereDate('order_time', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
@@ -83,12 +85,13 @@ class OrderController extends Controller
             'current_page' => $orders->currentPage(),
             'per_page' => $orders->perPage(),
             'total' => $orders->total(),
-            'last_page' => $orders->lastPage()
+            'last_page' => $orders->lastPage(),
+            'today' => $today
             ],200);
     }
     public function countOrdersToday(Request $request){
         $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
-        $today = date('Y-m-d H:i');
+        $today = date('Y-m-d');
         $countOrders = Order::whereDate('order_time', $today)
             ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
             ->count();
@@ -138,7 +141,7 @@ class OrderController extends Controller
             'current_page' => $orders->currentPage(),
             'per_page' => $orders->perPage(),
             'total' => $orders->total(),
-            'last_page' => $orders->lastPage()
+            'last_page' => $orders->lastPage(),
             ],200);
     }
     public function futureOrderByRestaurant(Request $request){
