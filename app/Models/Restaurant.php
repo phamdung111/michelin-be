@@ -11,7 +11,8 @@ class Restaurant extends Model
     protected $fillable = [
         'name',
         'location',
-        'phone'
+        'phone',
+        'avatar',
     ];
     public function user()
     {
