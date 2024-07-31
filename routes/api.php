@@ -1,11 +1,12 @@
 <?php
  
-use App\Http\Controllers\FavoriteController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\RestaurantController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\TableOrderController;
  
 Route::group([
     'middleware' => 'api',
@@ -19,20 +20,11 @@ Route::group([
     Route::post('/update-profile', [UserController::class, 'edit'])->middleware('auth:api')->name('me');
     Route::post('/update-avatar', [UserController::class, 'updateAvatar'])->middleware('auth:api')->name('me');
     Route::post('/new-restaurant', [RestaurantController::class, 'store'])->middleware('auth:api')->name('me');
-    Route::post('/restaurant-by-user', [RestaurantController::class, 'getRestaurantByUser'])->middleware('auth:api')->name('me');
-    Route::post('/update-restaurant', [RestaurantController::class, 'update'])->middleware('auth:api')->name('me');
-    Route::post('/delete-restaurant', [RestaurantController::class, 'destroy'])->middleware('auth:api')->name('me');
-
     Route::post('/like', [FavoriteController::class, 'store'])->middleware('auth:api')->name('me');
     Route::post('/check', [FavoriteController::class, 'check'])->middleware('auth:api')->name('me');
     Route::post('/un-like', [FavoriteController::class, 'destroy'])->middleware('auth:api')->name('me');
     Route::post('/favorites', [FavoriteController::class, 'favoritesByUser'])->middleware('auth:api')->name('me');
-
     Route::post('/order', [OrderController::class, 'store'])->middleware('auth:api')->name('me');
-    Route::post('/count-orders-today', [OrderController::class, 'countOrdersToday'])->middleware('auth:api')->name('me');
-    Route::post('/order-restaurant-today', [OrderController::class, 'orderByRestaurantToday'])->middleware('auth:api')->name('me');
-    Route::post('/old-order-restaurant', [OrderController::class, 'oldOrderByRestaurant'])->middleware('auth:api')->name('me');
-    Route::post('/future-order-restaurant', [OrderController::class, 'futureOrderByRestaurant'])->middleware('auth:api')->name('me');
     Route::post('/orders-user', [OrderController::class, 'orderByUser'])->middleware('auth:api')->name('me');
     Route::post('/user-cancel-order', [OrderController::class, 'cancelStatus'])->middleware('auth:api')->name('me');
 
@@ -41,4 +33,4 @@ Route::group([
 
 Route::post('/restaurants', [RestaurantController::class, 'restaurants']);
 Route::get('/restaurant/{id}', [RestaurantController::class, 'restaurant']);
-
+Route::post('/tables-or-rooms-by-order-time', [TableOrderController::class, 'tables0rRoomsByOrderTime']);

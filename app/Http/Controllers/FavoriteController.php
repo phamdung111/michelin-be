@@ -34,6 +34,9 @@ class FavoriteController extends Controller
             $favorite->restaurant_id = $restaurant->id;
             $favorite->user_id = auth()->user()->id;
             $favorite->save();
+            
+            $restaurant->count_like +=1;
+            $restaurant->save();
             return response()->json(true,200);
             } catch (\Exception $e) {
                 return response()->json(['error'=> $e->getMessage()],500);
@@ -50,6 +53,9 @@ class FavoriteController extends Controller
             ->where('user_id', auth()->user()->id)
             ->first();
         if($favorite) {
+            $restaurant = Restaurant::findOrFail($request->restaurantId);
+            $restaurant->count_like -=1;
+            $restaurant->save();
             $favorite->delete();
         }
         return response()->json(false,200);

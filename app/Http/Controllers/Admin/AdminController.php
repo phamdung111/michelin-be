@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -57,10 +58,12 @@ class AdminController extends Controller
         if(auth()->user()->id === 1){
             try{
                 foreach ($data as $restaurant_id => $restaurant_status) {
-
                     $restaurant = Restaurant::find($restaurant_id);
                     $restaurant->status = $restaurant_status;
                     $restaurant->save();
+                    $user = User::where('id',$restaurant->user_id)->first();
+                    $user->role_id = 2;
+                    $user->save();
                 }
                 return response()->json(['status'=> 'success'],200);
             }catch(\Exception $e) {

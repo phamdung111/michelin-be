@@ -17,8 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         Route::middleware('api')
             ->prefix('admin')
             ->group(base_path('routes/admin.php'));
- 
- 
+        Route::middleware('api')
+            ->prefix('manage')
+            ->group(base_path('routes/manage.php'));
+        Route::middleware('api')
+            ->prefix('own-restaurant')
+            ->group(base_path('routes/own-restaurant.php'));
         Route::middleware('web')
             ->group(base_path('routes/web.php'));
     },

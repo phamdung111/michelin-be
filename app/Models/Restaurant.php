@@ -12,7 +12,7 @@ class Restaurant extends Model
         'name',
         'location',
         'phone',
-        'avatar',
+        'allow_ordering',
     ];
     public function user()
     {
@@ -21,5 +21,17 @@ class Restaurant extends Model
     public function images()
     {
         return $this->hasMany(RestaurantImage::class);
+    }
+    public function tables()
+    {
+        return $this->hasMany(Table::class);
+    }
+    public function rooms()
+    {
+        return $this->hasMany(RestaurantRoom::class);
+    }
+    public function manager_restaurant()
+    {
+        return $this->belongsTo(User::class,'manager');
     }
 }

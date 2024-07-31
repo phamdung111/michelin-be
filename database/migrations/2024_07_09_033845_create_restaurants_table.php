@@ -25,6 +25,10 @@ return new class extends Migration
             $table->integer('count_like')->unsigned()->nullable();
             $table->integer('count_comment')->unsigned()->nullable();
             $table->boolean('lock_comment')->nullable();
+            $table->integer('timeout_expired')->nullable();
+            $table->integer('total_tables')->unsigned()->nullable();
+            $table->integer('total_rooms')->unsigned()->nullable();
+            $table->foreignId('manager')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
