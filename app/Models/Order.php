@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Table;
+use App\Models\RestaurantRoom;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -18,7 +20,22 @@ class Order extends Model
     function user(){
         return $this->belongsTo(User::class);
     }
-    function restaurant(){
-        return $this->belongsTo(Restaurant::class);
+    function tables(){
+        return $this->belongsTo(Table::class,'table_id');
+    }
+    function rooms(){
+        return $this->belongsTo(RestaurantRoom::class,'room_id');
+    }
+
+    public function restaurant()
+    {
+        return $this->hasOneThrough(
+            Restaurant::class,
+            Table::class,
+            'restaurant_id',
+            'id',
+            'table_id',
+            'restaurant_id'
+        );
     }
 }

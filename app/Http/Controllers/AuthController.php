@@ -33,7 +33,7 @@ class AuthController extends Controller
             $user->email = request()->email;
             $user->password = bcrypt(request()->password);
             $user->avatar = '/user-placeholder.png';
-            $user->role_id = '3';
+            $user->role_id = '4';
             $user->save();
 
             $credentials = request(['email', 'password']);

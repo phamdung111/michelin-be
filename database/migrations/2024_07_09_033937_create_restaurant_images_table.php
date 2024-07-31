@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('restaurant_images', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->id();
             $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
             $table->string('image');

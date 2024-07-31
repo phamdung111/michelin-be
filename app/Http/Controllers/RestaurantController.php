@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Table;
 use App\Models\Restaurant;
-use App\Models\RestaurantImage;
 use Illuminate\Http\Request;
+use App\Models\RestaurantRoom;
+use App\Models\RestaurantImage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +40,7 @@ class RestaurantController extends Controller
             'description'=> 'required',
             'image0'=> 'required|image',
             'allow_booking'=> 'required',
+            'avatar'=> 'required|image',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -51,8 +55,43 @@ class RestaurantController extends Controller
             $restaurant->description = $request->description;
             $restaurant->allow_booking = $request->allow_booking == 'true' ? true : false;
             $restaurant->status = 'pending';
+            $avatar = $request->avatar;
+            $nameAvatar = $avatar->hashName();
+            Storage::putFileAs('images', $avatar, $nameAvatar);
+            $restaurant->avatar = '/images/'. $nameAvatar;
+            $totalTables = $request->totalTables;
+            $restaurant->total_tables = $totalTables;
+            $totalRooms = $request->totalRooms;
+            $restaurant->total_rooms = $totalRooms;
             $restaurant->save();
 
+            $user = User::where('id',auth()->user()->id)->first();
+            $user->role_id = 2;
+            $user->save();
+            
+            if($totalTables > 0){
+                $tablesNextToWindow =explode(',',$request->tablesNextToWindow);
+                for($i = 1; $i <= $totalTables; $i++){
+                    $table = new Table();
+                    $table->restaurant_id = $restaurant->id;
+                    if(in_array($i, $tablesNextToWindow)){
+                        $table->table_number = $i;
+                        $table->description = 'Next to window';
+                    }else{
+                        $table->table_number = $i;
+                        $table->description = 'Normal';
+                    }
+                    $table->save();
+                }
+            }
+            if($totalRooms > 0){
+                for($i = 1; $i <= $totalRooms; $i++){
+                    $room = new RestaurantRoom();
+                    $room->restaurant_id = $restaurant->id;
+                    $room->room_number = $i;
+                    $room->save();
+                }
+            }
             for( $i = 0; $i < 4; $i++ ) {
                 ${"image$i"} = $request->{"image$i"};
                 if(${"image$i"} ){
@@ -70,96 +109,11 @@ class RestaurantController extends Controller
     /**
      * Display the specified resource.
      */
-    public function getRestaurantByUser()
-    {
-        try{
-            $restaurants = Restaurant::where('user_id', auth()->user()->id)
-                ->with(['images'])
-                ->orderByDesc('created_at')
-                ->paginate(8);
-            if ($restaurants->isEmpty()) {
-                return response()->json(['message' => 'No restaurants found'], 200);
-            }
-            $restaurantsData = $restaurants->map(function ($restaurant) {
-                return [
-                    'id'=> $restaurant->id,
-                    'name' => $restaurant->name,
-                    'status'=> $restaurant->status,
-                    'address' => $restaurant->address,
-                    'phone'=> $restaurant->phone,
-                    'email' => $restaurant->email,
-                    'description'=> $restaurant->description,
-                    'allow_booking'=>(bool) $restaurant->allow_booking,
-                    'date' => date('H:i d/m/Y', strtotime($restaurant->created_at)),
-                    'images' => $restaurant->images->map(function ($image) {
-                        return [
-                            'id' => $image->id,
-                            'image' => Storage::url($image->image)
-                        ];
-                    })->toArray()
-                ];
-            });
-            
-            return response()->json([
-                'items' => $restaurantsData,
-                'current_page' => $restaurants->currentPage(),
-                'per_page' => $restaurants->perPage(),
-                'total' => $restaurants->total(),
-                'last_page' => $restaurants->lastPage()
-            ],200);
-        }catch(\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 400);
-        }
-    }
-
-
+    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, RestaurantImageController $restaurantImageController)
-    {
-        $restaurant = Restaurant::findOrFail($request->input('id'));
-        $response = Gate::inspect('update', $restaurant);
-        if ($response->allowed()) {
-            if(!$restaurant) {
-                return response()->json(['error'=> 'Not found the restaurant'], 400);
-            }else{
-                try{
-                    $restaurant->name = $request->name ?? $restaurant->name;
-                    $restaurant->description = $request->description ?? $restaurant->description;
-                    $restaurant->phone = $request->phone ?? $restaurant->phone;
-                    $restaurant->address = $request->address ?? $restaurant->address;
-                    $restaurant->status = $request->status ?? $restaurant->status;
-                    $restaurant->email = $request->email ?? $restaurant->email;
-                    if ($request->has('allow_booking')) {
-                       $restaurant->allow_booking = $request->allow_booking === "1" ? 1 : 0;
-                    }
-                    if ($request->has('images_removed')) {
-                        $imagesRemoved = $request->images_removed;
-                        $imageIds = explode(',', $imagesRemoved);
-                        foreach ($imageIds as $imageId) {
-                            $restaurantImageController->destroy((int)$imageId);
-                        }
-                    }
-                    if ($request->has('images')) {
-                       foreach ($request->file('images') as $image) {
-                            $restaurantImageController->store($image, $restaurant->id);
-                        }
-                    }
-                    $restaurant->save();
-                    return response()->json(['success'=> 'success' ],200);
-                }catch(\Exception $e) {
-                    return response()->json(['error'=> $e->getMessage()], 400);
-                }
-
-            }
-        } else {
-            return response()->json(['error'=> 'auth'], 403);
-        }
-        
-
-    }
     
     public function restaurants(Request $request){
         $perPage = $request->perPage;
@@ -168,7 +122,7 @@ class RestaurantController extends Controller
                 ->orderByDesc('created_at')
                 ->paginate($perPage);
         if ($restaurants->isEmpty()) {
-            return response()->json(['message' => 'No restaurants'], 200);
+            return response()->json(['message' => 'No data'], 204);
         }
 
         $restaurantsData = $restaurants->map(function ($restaurant) {
@@ -182,6 +136,8 @@ class RestaurantController extends Controller
                 'description'=> $restaurant->description,
                 'allow_booking'=>(bool) $restaurant->allow_booking,
                 'date' => date('H:i d/m/Y', strtotime($restaurant->created_at)),
+                'avatar'=> Storage::url($restaurant->avatar),
+                'countLike' => $restaurant->count_like,
                 'images' => $restaurant->images->map(function ($image) {
                     return [
                         'id' => $image->id,
@@ -202,11 +158,12 @@ class RestaurantController extends Controller
     public function restaurant($id){
         $restaurant = Restaurant::where('id', $id,)
                 ->where('status', 'approved')
-                ->with(['images'])
+                ->with(['images','tables','rooms'])
                 ->first();
         if (!$restaurant) {
-            return response()->json(['message' => 'No restaurant'], 200);
+            return response()->json(['message' => 'No restaurant'], 204);
         }
+
         return response()->json([
             'id'=> $restaurant->id,
             'name' => $restaurant->name,
@@ -216,44 +173,33 @@ class RestaurantController extends Controller
             'email' => $restaurant->email,
             'description'=> $restaurant->description,
             'allow_booking'=>(bool) $restaurant->allow_booking,
+            'countLike' => $restaurant->count_like,
+            'tables' => $restaurant->tables->map(function ($table){
+                return [
+                    'id'=>$table->id,
+                    'tableNumber' =>$table->table_number,
+                    'description' =>$table->description,
+                ];
+            }),
             'date' => date('H:i d/m/Y', strtotime($restaurant->created_at)),
+            'avatar'=> Storage::url($restaurant->avatar),
             'images' => $restaurant->images->map(function ($image) {
                 return [
                     'id' => $image->id,
                     'image' => Storage::url($image->image)
                 ];
-            })->toArray()
+            })->toArray(),
+            'rooms'=> $restaurant->rooms->map(function ($room){
+                return [
+                    'id' => $room->id,
+                    'roomNumber' => $room->room_number
+                ];
+            })
         ],200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request,RestaurantImageController $restaurantImageController)
-    {
-        $validator = Validator::make($request->all(), [
-            'restaurantId'=> 'required',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['message'=> $validator->errors()],400);
-        }
-        $restaurant = Restaurant::where('id', $request->restaurantId)->first();
-        if (!$restaurant) {
-            return response()->json(['message'=> 'Not found the restaurant'],400);
-        }else if( $restaurant->user_id != auth()->user()->id ) {
-            return response()->json(['message'=> 'Authorization'],403);
-        }else{
-            try{
-                $restaurantImages = RestaurantImage::where('restaurant_id', $restaurant->id)->get();
-                    foreach ($restaurantImages as $image) {
-                        $restaurantImageController->destroy($image->id);
-                    }
-                $restaurant->delete();
-                return response()->json(true,200);
-            }catch(\Exception $e){
-                return response()->json(['message'=> $e->getMessage()],400);
-            }
-        }
-    }
-
+   
 }

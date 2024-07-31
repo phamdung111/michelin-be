@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
+        Schema::create('restaurant_rooms', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('order_time');
-            $table->bigInteger('guest');
-            $table->string('status');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('room_number');
             $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade');
+            $table->boolean('is_booking')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        //
     }
 };

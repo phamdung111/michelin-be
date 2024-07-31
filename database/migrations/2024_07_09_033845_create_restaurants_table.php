@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('restaurants', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
@@ -22,6 +21,14 @@ return new class extends Migration
             $table->string('email');
             $table->string('description');
             $table->boolean('allow_booking');
+            $table->string('avatar');
+            $table->integer('count_like')->unsigned()->nullable();
+            $table->integer('count_comment')->unsigned()->nullable();
+            $table->boolean('lock_comment')->nullable();
+            $table->integer('timeout_expired')->nullable();
+            $table->integer('total_tables')->unsigned()->nullable();
+            $table->integer('total_rooms')->unsigned()->nullable();
+            $table->foreignId('manager')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
