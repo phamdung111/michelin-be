@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Own;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Table;
@@ -140,6 +141,9 @@ class OwnRestaurantController extends Controller
                     }
                     if($request->has('manager')){
                         $restaurant->manager = $request->manager;
+                        $manager = User::where('id',$request->manager)->first();
+                        $manager->role_id = 3;
+                        $manager->save();
                     }
                     $restaurant->save();
                     return response()->json(['success'=> 'success' ],200);
@@ -154,17 +158,27 @@ class OwnRestaurantController extends Controller
 
     }
     public function countOrdersToday(Request $request){
-        $restaurantOwn = Restaurant::where('user_id', auth()->user()->id)->get();
+        $user_id = auth()->user()->id;
+        $restaurantIds = Restaurant::where('user_id', $user_id)->pluck('id');
+
+        $tableIds = Table::whereIn('restaurant_id', $restaurantIds)->pluck('id');
+        $roomIds = RestaurantRoom::whereIn('restaurant_id', $restaurantIds)->pluck('id');
+
         $today = date('Y-m-d');
-        try{
-            $countOrders = Order::whereDate('order_time', $today)
-                ->whereIn('restaurant_id', $restaurantOwn->pluck('id'))
-                ->count();
-            return response()->json($countOrders,200);
-        }catch(\Exception $e){
-            return response()->json(['errors'=> $e->getMessage()],204);
-        }
         
+
+        $countOrders = Order::whereDate('order_time', $today)
+            ->where(function($query) use ($tableIds, $roomIds) {
+                $query->whereIn('table_id', $tableIds)
+                    ->orWhereIn('room_id', $roomIds);
+            })
+            ->with('user')
+            ->with('tables')
+            ->with('rooms')
+            ->with('restaurant')
+            ->orderBy('order_time')
+            ->count();
+        return response()->json($countOrders);
     }
 
      public function destroy(Request $request,RestaurantImageController $restaurantImageController)
@@ -268,13 +282,13 @@ class OwnRestaurantController extends Controller
         $tableIds = Table::whereIn('restaurant_id', $restaurantIds)->pluck('id');
         $roomIds = RestaurantRoom::whereIn('restaurant_id', $restaurantIds)->pluck('id');
 
-        $today = date('Y-m-d H:i');
+        $today = date('Y-m-d');
         
 
-        $orders = Order::where(function($query) use ($tableIds, $roomIds, $today) {
-            $query->whereIn('table_id', $tableIds)
-                ->orWhereIn('room_id', $roomIds)
-                ->whereDate('order_time', $today);
+        $orders = Order::whereDate('order_time', $today)
+            ->where(function($query) use ($tableIds, $roomIds) {
+                $query->whereIn('table_id', $tableIds)
+                    ->orWhereIn('room_id', $roomIds);
             })
             ->with('user')
             ->with('tables')
@@ -334,13 +348,13 @@ class OwnRestaurantController extends Controller
         $tableIds = Table::whereIn('restaurant_id', $restaurantIds)->pluck('id');
         $roomIds = RestaurantRoom::whereIn('restaurant_id', $restaurantIds)->pluck('id');
 
-        $today = date('Y-m-d H:i');
+        $today = date('Y-m-d');
         
 
-        $orders = Order::where(function($query) use ($tableIds, $roomIds, $today) {
-            $query->whereIn('table_id', $tableIds)
-                ->orWhereIn('room_id', $roomIds)
-                ->whereDate('order_time', '<',$today);
+        $orders = Order::whereDate('order_time', '<', $today)
+            ->where(function($query) use ($tableIds, $roomIds) {
+                $query->whereIn('table_id', $tableIds)
+                    ->orWhereIn('room_id', $roomIds);
             })
             ->with('user')
             ->with('tables')
@@ -402,13 +416,13 @@ class OwnRestaurantController extends Controller
         $tableIds = Table::whereIn('restaurant_id', $restaurantIds)->pluck('id');
         $roomIds = RestaurantRoom::whereIn('restaurant_id', $restaurantIds)->pluck('id');
 
-        $today = date('Y-m-d H:i');
+        $today = date('Y-m-d');
         
 
-        $orders = Order::where(function($query) use ($tableIds, $roomIds, $today) {
-            $query->whereIn('table_id', $tableIds)
-                ->orWhereIn('room_id', $roomIds)
-                ->whereDate('order_time', '>',$today);
+        $orders = Order::whereDate('order_time', '>', $today)
+            ->where(function($query) use ($tableIds, $roomIds) {
+                $query->whereIn('table_id', $tableIds)
+                    ->orWhereIn('room_id', $roomIds);
             })
             ->with('user')
             ->with('tables')
