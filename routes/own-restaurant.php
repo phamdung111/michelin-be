@@ -1,9 +1,7 @@
 <?php
  
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\OwnRestaurantController;
+use App\Http\Controllers\Own\OwnRestaurantController;
  
 Route::group([
     'middleware' => 'api',

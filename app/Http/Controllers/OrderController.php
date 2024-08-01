@@ -72,29 +72,42 @@ class OrderController extends Controller
             $today = date('Y-m-d H:i');
 
             $orders = Order::where('order_time','>=',$today)
+                ->where('user_id',auth()->user()->id)
+                ->with('tables')
+                ->with('rooms')
                 ->with('restaurant')
-                ->with('restaurant.images')
                 ->orderBy('order_time')
                 ->paginate(20);
  
-            $ordersData = $orders->map(function($order){
-                return [
-                    'id'=> $order->id,
-                    'time'=> Carbon::parse($order->order_time)->format('H:i Y-m-d'),
-                    'status'=> $order->status,
-                    'restaurant' => [
-                        'id'=> $order->restaurant->id,
-                        'name'=> $order->restaurant->name,
-                        'phone'=> $order->restaurant->phone,
-                        'address'=> $order->restaurant->address,
-                        'images'=> $order->restaurant->images->map(function ($image){
-                            return Storage::url($image->image);
-                        }),
-                    ]
-                ];
-            });
+            $orderData = $orders->map(function ($order){
+            $restaurant = null;
+            if($order->tables) {
+                $restaurant = Restaurant::where('id', $order->tables->restaurant_id)
+                    ->first();
+            }
+            if($order->rooms) {
+                $restaurant = Restaurant::where('id', $order->rooms->restaurant_id)
+                    ->first();
+            }
+            return [
+                'id'=> $order->id,
+                'guests'=> $order->guests,
+                'status'=> $order->status,
+                'time'=> $order->order_time,
+                'table'=> $order->tables? $order->tables->table_number : null,
+                'room'=> $order->rooms ? $order->rooms->room_number : null,
+                'restaurant' => [
+                    'id' => $restaurant->id,
+                    'name' => $restaurant->name,
+                    'address' => $restaurant->address,
+                    'phone' => $restaurant->phone,
+                    'email' => $restaurant->email,
+                    'avatar' => Storage::url($restaurant->avatar)
+                ],
+            ];
+        });
             return response()->json([
-                'orders' => $ordersData,
+                'orders' => $orderData,
                 'current_page' => $orders->currentPage(),
                 'per_page' => $orders->perPage(),
                 'total' => $orders->total(),
