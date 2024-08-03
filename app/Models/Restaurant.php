@@ -34,4 +34,8 @@ class Restaurant extends Model
     {
         return $this->belongsTo(User::class,'manager');
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
