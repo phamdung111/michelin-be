@@ -1,5 +1,6 @@
 <?php
  
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
@@ -29,8 +30,14 @@ Route::group([
     Route::post('/user-cancel-order', [OrderController::class, 'cancelStatus'])->middleware('auth:api')->name('me');
 
     Route::post('/change-status', [OrderController::class, 'changeStatus'])->middleware('auth:api')->name('me');
+    Route::post('/comment', [CommentController::class, 'store'])->middleware('auth:api')->name('me');
+    Route::post('/delete-comment', [CommentController::class, 'destroy'])->middleware('auth:api')->name('me');
+    Route::post('/edit-comment', [CommentController::class, 'edit'])->middleware('auth:api')->name('me');
+
 });
 
 Route::post('/restaurants', [RestaurantController::class, 'restaurants']);
 Route::get('/restaurant/{id}', [RestaurantController::class, 'restaurant']);
 Route::post('/tables-or-rooms-by-order-time', [TableOrderController::class, 'tables0rRoomsByOrderTime']);
+
+Route::get('/comments', [CommentController::class, 'show']);

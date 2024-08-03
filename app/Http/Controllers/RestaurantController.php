@@ -158,7 +158,7 @@ class RestaurantController extends Controller
     public function restaurant($id){
         $restaurant = Restaurant::where('id', $id,)
                 ->where('status', 'approved')
-                ->with(['images','tables','rooms'])
+                ->with(['images','tables','rooms','comments','comments.user'])
                 ->first();
         if (!$restaurant) {
             return response()->json(['message' => 'No restaurant'], 204);
@@ -193,6 +193,12 @@ class RestaurantController extends Controller
                 return [
                     'id' => $room->id,
                     'roomNumber' => $room->room_number
+                ];
+            }),
+            'comments'=>$restaurant->comments->map(function ($comment){
+                return [
+                    'id'=>$comment->id,
+                    'content' => $comment->content
                 ];
             })
         ],200);
