@@ -17,11 +17,32 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array<int, string>
      */
+
+    private $id;
+    private $email;
+    private $name;
+    private $avatar;
+    private $location;
+    private $role;
+    private $phone;
+    private $description;
+
+    // public function __construct($id, $name, $email,$avatar,$location,$role,$phone,$description){
+    //     $this->$id = $id;
+    //     $this->name = $name;
+    //     $this->email = $email;
+    //     $this->avatar = $avatar;
+    //     $this->$location = $location;
+    //     $this->$role = $role;
+    //     $this->$phone = $phone;
+    //     $this->$description = $description;
+    // }
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'login_resource'
     ];
  
     /**
