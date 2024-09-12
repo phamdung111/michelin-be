@@ -2,12 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
-use App\Services\JwtService;
 use Closure;
+use App\Models\User;
+use GuzzleHttp\Client;
+use App\Services\JwtService;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
 class AuthMiddleware
 {
     protected $jwtService;
@@ -23,19 +25,20 @@ class AuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->bearerToken();
+        $loginSource = getallheaders()['Login-Source'];
         $jwtService = new JwtService();
         if(!$token){
             return response()->json(['message'=>'Authenticated.'],401);
         }
-        if($jwtService->validateToken($token)->status === false){
-            if($jwtService->validateToken($token)->message === 'Token has expired'){
+        if($jwtService->validateToken($token,$loginSource)->status === false){
+            if($jwtService->validateToken($token,$loginSource)->message === 'Token has expired'){
                 return response()->json(['message'=>'Token has expired.'],401);
             }
             else{
-                return response()->json(['message'=>'Authenticated.'],401);
+                return response()->json(['message'=>'Authenticated..'],401);
             }
         }
-        $userId = $this->jwtService->getUserFromToken($token);
+        $userId = $this->jwtService->getUserFromToken($token,$loginSource);
         $user = User::find($userId);
         Auth::guard()->setUser($user);
         return $next($request);

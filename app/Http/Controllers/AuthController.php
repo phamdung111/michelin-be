@@ -93,14 +93,8 @@ class AuthController extends Controller
      */
     public function profile(Request $request)
     {
-        $token = $request->bearerToken();
-        list($header, $payload, $signature) = explode('.',$token);
-
-        $payloadData = json_decode(base64_decode($payload),true);
-        $expToken = $payloadData['exp'];
-
         $avatar = '';
-        auth()->user()->login_resource === 'app' ? $avatar = Storage::url(auth()->user()->avatar) : $avatar = auth()->user()->avatar;
+        !str_starts_with(auth()->user()->avatar,'https') ? $avatar = Storage::url(auth()->user()->avatar) : $avatar = auth()->user()->avatar;
         return response()->json(
             [
                 'id'=> auth()->user()->id,
@@ -111,8 +105,6 @@ class AuthController extends Controller
                 'role' => Role::where('id', auth()->user()->role_id)->value('name'),
                 'phone'=> auth()->user()->phone,
                 'description'=> auth()->user()->description,
-                $expToken,
-                time()
             ]
         );
     }

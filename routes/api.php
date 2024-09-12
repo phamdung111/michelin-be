@@ -1,6 +1,7 @@
 <?php
  
 use App\Http\Controllers\Auth\JWTController;
+use App\Http\Controllers\GoogleController;
 use App\Services\JwtService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -43,3 +44,5 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/github/callback', [GitHubController::class, 'handleProviderCallback']);
+Route::post('/google/callback', [GoogleController::class, 'googleAccountCallback']);
+

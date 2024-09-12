@@ -16,13 +16,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('role_id')->constrained('roles')->onDelete('restrict');
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('avatar');
             $table->string('location')->nullable();
             $table->string('phone')->nullable();
             $table->string('description')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('login_resource');
             $table->rememberToken();
             $table->timestamps();

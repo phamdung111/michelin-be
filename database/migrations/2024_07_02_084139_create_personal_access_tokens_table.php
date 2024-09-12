@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
-            $table->string('token')->unique();
-            $table->string('refresh_token')->unique();
+            $table->string('token',length:500)->unique();
+            $table->string('refresh_token',length:500)->unique();
             $table->timestamps();
         });
     }
