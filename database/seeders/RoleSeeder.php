@@ -21,6 +21,7 @@ class RoleSeeder extends Seeder
             'avatar'=> '/user-placeholder.png',
             'created_at' => now(),
             'updated_at' => now(),
+            'login_resource'=>'app'
         ]);
     }
 }
