@@ -41,10 +41,10 @@ class GoogleController extends Controller
             $body = $userResponse->getBody()->getContents();
             $userData =  json_decode($body,true);
             $user = User::where('email',$userData['email'])->first();
-            if($user && $user->login_resource !== 'google'){
+            if($user && $user->login_source !== 'google'){
                 return response()->json([
                     'message'=> 'User exist in app',
-                    'login_source' => $user->login_resource,
+                    'login_source' => $user->login_source,
                 ],200);
             }
             elseif(!$user){
@@ -54,7 +54,7 @@ class GoogleController extends Controller
             $user->email = $userData['email'];
             $user->name = $userData['name'];
             $user->avatar = $userData['picture'];
-            $user->login_resource = 'google';
+            $user->login_source = 'google';
             $user->save(); 
             $personalAccessToken = PersonalAccessToken::where('user_id',$user->id)->first();
             if(!$personalAccessToken){

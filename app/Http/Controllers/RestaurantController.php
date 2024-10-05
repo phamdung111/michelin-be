@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MyEvent;
 use App\Models\User;
 use App\Models\Table;
 use App\Models\Restaurant;
@@ -203,9 +204,13 @@ class RestaurantController extends Controller
             })
         ],200);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-   
+    public function test(Request $request) {
+        try{
+            $message = $request->input('message');
+            broadcast(new MyEvent($message));
+            return response()->json($message);
+        }catch(\Exception $e){
+            return response()->json($e->getMessage());
+        }
+    }
 }

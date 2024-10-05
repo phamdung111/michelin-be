@@ -37,12 +37,12 @@ class AuthController extends Controller
             $user->password = $password;
             $user->avatar = '/user-placeholder.png';
             $user->role_id = '4';
-            $user->login_resource = 'app';
+            $user->login_source = 'app';
             $user->save();
             
             $jwt = new JwtService();
 
-            $token = $jwt->generateJWTToken($user->id,$user->login_resource);
+            $token = $jwt->generateJWTToken($user->id,$user->login_source);
 
             return response()->json([$token],201);
         }catch(\Exception $e){
@@ -78,7 +78,7 @@ class AuthController extends Controller
         }  
 
         $jwt = new JwtService();  
-        $token = $jwt->generateJWTToken($user->id,$user->login_resource);
+        $token = $jwt->generateJWTToken($user->id,$user->login_source);
         return response()->json($token);  
     }
     function base64UrlDecode($data) {

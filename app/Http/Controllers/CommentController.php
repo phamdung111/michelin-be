@@ -21,7 +21,7 @@ class CommentController extends Controller
             $comment = new Comment();
             $comment->user_id = auth()->user()->id;
             $comment->restaurant_id = $request->restaurantId;
-            $comment->content = $request->content;
+            $comment->content = $request->input('content');
             $comment->save();
             return response()->json($comment->id,200);
         }catch(\Exception $e){
@@ -82,7 +82,7 @@ class CommentController extends Controller
         }
         try{
             $comment = Comment::findOrFail($request->id);
-            $comment->content = $request->content;
+            $comment->content = $request->input('content');
             $comment->save();
             return response()->json(true,200);
         }catch(\Exception $e){

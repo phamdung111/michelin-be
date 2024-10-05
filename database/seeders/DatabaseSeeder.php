@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RolesTableSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(NotificationEntityTypeSeeder::class);
     }
 }

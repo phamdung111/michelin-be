@@ -145,7 +145,7 @@ return [
     // ],
     'required_claims' => [
         'id',
-        'login_resource',
+        'login_source',
         'exp',
     ],
     /*

@@ -1,13 +1,14 @@
 <?php
  
-use App\Http\Controllers\Auth\JWTController;
-use App\Http\Controllers\GoogleController;
 use App\Services\JwtService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\GithubController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\PusherController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\RestaurantController;
@@ -43,6 +44,9 @@ Route::get('/comments', [CommentController::class, 'show']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+//oauth callback
 Route::post('/github/callback', [GitHubController::class, 'handleProviderCallback']);
 Route::post('/google/callback', [GoogleController::class, 'googleAccountCallback']);
 
+//pusher endpoint
+Route::post('/pusher/auth',[PusherController::class,'auth']);
