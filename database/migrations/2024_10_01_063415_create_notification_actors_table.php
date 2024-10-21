@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('actor_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('notification_object_id')->constrained('notification_objects')->onDelete('cascade');
+            $table->string('actor_entity_table');
             $table->timestamps();
         });
     }

@@ -17,7 +17,7 @@ class NotificationEntityTypeSeeder extends Seeder
             [
                 'entity_table' => 'order',
                 'notification_type'=> 'new',
-                'description'=>'ordered a table in your restaurant at'
+                'description'=>'ordered in your restaurant.'
             ],
             [
                 'entity_table' => 'order',

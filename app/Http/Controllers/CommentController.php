@@ -61,7 +61,7 @@ class CommentController extends Controller
                 'user' => [
                     'id' => $comment->user->id,
                     'name' => $comment->user->name,
-                    'avatar'=> Storage::url($comment->user->avatar)
+                    'avatar'=> str_starts_with($comment->user->avatar,'https') ? $comment->user->avatar : Storage::url($comment->user->avatar)
                 ],
             ];
         });

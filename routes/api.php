@@ -1,5 +1,6 @@
 <?php
  
+use App\Http\Controllers\NotificationController;
 use App\Services\JwtService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -30,10 +31,14 @@ Route::middleware(['custom-auth'])->group(function () {
     Route::post('/orders-user', [OrderController::class, 'orderByUser']);
     Route::post('/user-cancel-order', [OrderController::class, 'cancelStatus']);
     Route::post('/change-status', [OrderController::class, 'changeStatus']);
-    Route::post('/comment', [CommentController::class, 'store']);
+    Route::post('/comment', action: [CommentController::class, 'store']);
     Route::post('/delete-comment', [CommentController::class, 'destroy']);
     Route::post('/edit-comment', [CommentController::class, 'edit']);
+    Route::post('/notifications', [NotificationController::class, 'index']);
+    Route::post('/count-notifications-unread', [NotificationController::class, 'countUnread']);
+
 });
+
 
 Route::post('/restaurants', [RestaurantController::class, 'restaurants']);
 Route::get('/restaurant/{id}', [RestaurantController::class, 'restaurant']);

@@ -2,6 +2,7 @@
   
 namespace App\Http\Controllers;
   
+use App\Models\Restaurant;
 use App\Services\JwtService;
 use Illuminate\Http\Request;
 use Validator;
@@ -44,7 +45,7 @@ class AuthController extends Controller
 
             $token = $jwt->generateJWTToken($user->id,$user->login_source);
 
-            return response()->json([$token],201);
+            return response()->json($token,201);
         }catch(\Exception $e){
             return response()->json($e->getMessage(), 400);
         }
@@ -95,6 +96,29 @@ class AuthController extends Controller
     {
         $avatar = '';
         !str_starts_with(auth()->user()->avatar,'https') ? $avatar = Storage::url(auth()->user()->avatar) : $avatar = auth()->user()->avatar;
+        $channels = [];
+        if(auth()->user()->role_id === 2) {
+            $restaurants = Restaurant::where('user_id', auth()->user()->id)
+                ->with('images')
+                ->with('tables')
+                ->with('rooms')
+                ->with('manager_restaurant')
+                ->get();
+            foreach ($restaurants as $restaurant) {
+                $channels[] = 'order.'.$restaurant->id;
+            }
+        }
+        elseif(auth()->user()->role_id === 3) {
+            $restaurants = Restaurant::where('manager', auth()->user()->id)
+                ->with('images')
+                ->with('tables')
+                ->with('rooms')
+                ->with('manager_restaurant')
+                ->get();
+            foreach ($restaurants as $restaurant) {
+                $channels[] = 'order.'.$restaurant->id;
+            }
+        }
         return response()->json(
             [
                 'id'=> auth()->user()->id,
@@ -105,6 +129,7 @@ class AuthController extends Controller
                 'role' => Role::where('id', auth()->user()->role_id)->value('name'),
                 'phone'=> auth()->user()->phone,
                 'description'=> auth()->user()->description,
+                'channels' => $channels
             ]
         );
     }

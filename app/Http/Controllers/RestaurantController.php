@@ -204,13 +204,4 @@ class RestaurantController extends Controller
             })
         ],200);
     }
-    public function test(Request $request) {
-        try{
-            $message = $request->input('message');
-            broadcast(new MyEvent($message));
-            return response()->json($message);
-        }catch(\Exception $e){
-            return response()->json($e->getMessage());
-        }
-    }
 }

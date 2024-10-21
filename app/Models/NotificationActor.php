@@ -10,6 +10,7 @@ class NotificationActor extends Model
     use HasFactory;
     protected $fillable = [
         "notification_object_id",
+        "actor_entity_table",
         "actor_id",
     ];
 }
