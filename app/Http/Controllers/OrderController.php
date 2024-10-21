@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Events\OrderEvent;
 use App\Models\Order;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
@@ -33,11 +33,13 @@ class OrderController extends Controller
             $order->guests = $request->guests;
             $order->status = 'booking';
             $order->save();
+            $eventOrder = new OrderEvent($order);
+            $eventOrder->store();
+            event ($eventOrder);
             return response()->json(['status'=> 'success'],200);
         }catch (\Exception $e) {
-            return response()->json(['errors'=> $e->getMessage()],200);
+            return response()->json(['errors'=> $e->getMessage()],status: 400);
         }
-
     }
 
     

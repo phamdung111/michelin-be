@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie','admin/*','manager/*','own-restaurant/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie','admin/*','manager/*','own-restaurant/*','broadcasting/auth'],
 
     'allowed_methods' => ['*'],
 
@@ -30,5 +30,4 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => true,
-
 ];

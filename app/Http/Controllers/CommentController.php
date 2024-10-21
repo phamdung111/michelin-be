@@ -21,7 +21,7 @@ class CommentController extends Controller
             $comment = new Comment();
             $comment->user_id = auth()->user()->id;
             $comment->restaurant_id = $request->restaurantId;
-            $comment->content = $request->content;
+            $comment->content = $request->input('content');
             $comment->save();
             return response()->json($comment->id,200);
         }catch(\Exception $e){
@@ -61,7 +61,7 @@ class CommentController extends Controller
                 'user' => [
                     'id' => $comment->user->id,
                     'name' => $comment->user->name,
-                    'avatar'=> Storage::url($comment->user->avatar)
+                    'avatar'=> str_starts_with($comment->user->avatar,'https') ? $comment->user->avatar : Storage::url($comment->user->avatar)
                 ],
             ];
         });
@@ -82,7 +82,7 @@ class CommentController extends Controller
         }
         try{
             $comment = Comment::findOrFail($request->id);
-            $comment->content = $request->content;
+            $comment->content = $request->input('content');
             $comment->save();
             return response()->json(true,200);
         }catch(\Exception $e){

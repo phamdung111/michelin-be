@@ -39,7 +39,7 @@ class GithubController extends Controller
             if(!$user){
                 $user = new User();
                 $user->name = $userResponse->json()['login'];
-                $user->login_resource = 'github';
+                $user->login_source = 'github';
                 $user->role_id = '4';
             }
             $user->avatar = $userResponse->json()['avatar_url'];

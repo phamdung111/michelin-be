@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MyEvent;
 use App\Models\User;
 use App\Models\Table;
 use App\Models\Restaurant;
@@ -203,9 +204,4 @@ class RestaurantController extends Controller
             })
         ],200);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-   
 }

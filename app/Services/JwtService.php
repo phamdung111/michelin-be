@@ -19,7 +19,7 @@ class JwtService
         return base64_decode($base64);
     }
 
-    private function generateToken($user_id, $exp,$login_resource) {
+    private function generateToken($user_id, $exp,$login_source) {
         $header = [
             'alg' => 'HS256',
             'typ' => 'JWT'
@@ -27,7 +27,7 @@ class JwtService
         $payload = [
             'id' => $user_id,
             'exp' => time() + $exp,
-            'login_resource' => $login_resource
+            'login_source' => $login_source
         ];
         $headerBase64 = $this->base64UrlEncode(json_encode($header));
         $payloadBase64 = $this->base64UrlEncode(json_encode($payload));
@@ -39,9 +39,9 @@ class JwtService
         $token = $headerBase64 . '.' . $payloadBase64 . '.' . $signatureBase64;
         return $token;
     }
-    public function generateJWTToken($user_id,$login_resource){
-        $access_token = $this->generateToken($user_id,3600,$login_resource);
-        $refresh_token = $this->generateToken($user_id,259200,$login_resource);
+    public function generateJWTToken($user_id,$login_source){
+        $access_token = $this->generateToken($user_id,3600,$login_source);
+        $refresh_token = $this->generateToken($user_id,259200,$login_source);
         $personalAccessTOken = PersonalAccessToken::where('user_id',$user_id)->first();
         if(!$personalAccessTOken) {
             $personalAccessTOken = new PersonalAccessToken();
@@ -56,7 +56,7 @@ class JwtService
             'refresh_token' => $refresh_token,
             'token_type' => 'bearer',
             'expires_in' => 3600,
-            'login_resource'=>'app'
+            'login_source'=>'app'
         ];
     }
     public function validateToken($token,$loginSource){

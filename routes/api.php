@@ -1,13 +1,15 @@
 <?php
  
-use App\Http\Controllers\Auth\JWTController;
-use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\NotificationController;
 use App\Services\JwtService;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\GithubController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\PusherController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\RestaurantController;
@@ -29,10 +31,14 @@ Route::middleware(['custom-auth'])->group(function () {
     Route::post('/orders-user', [OrderController::class, 'orderByUser']);
     Route::post('/user-cancel-order', [OrderController::class, 'cancelStatus']);
     Route::post('/change-status', [OrderController::class, 'changeStatus']);
-    Route::post('/comment', [CommentController::class, 'store']);
+    Route::post('/comment', action: [CommentController::class, 'store']);
     Route::post('/delete-comment', [CommentController::class, 'destroy']);
     Route::post('/edit-comment', [CommentController::class, 'edit']);
+    Route::post('/notifications', [NotificationController::class, 'index']);
+    Route::post('/count-notifications-unread', [NotificationController::class, 'countUnread']);
+
 });
+
 
 Route::post('/restaurants', [RestaurantController::class, 'restaurants']);
 Route::get('/restaurant/{id}', [RestaurantController::class, 'restaurant']);
@@ -43,6 +49,9 @@ Route::get('/comments', [CommentController::class, 'show']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+//oauth callback
 Route::post('/github/callback', [GitHubController::class, 'handleProviderCallback']);
 Route::post('/google/callback', [GoogleController::class, 'googleAccountCallback']);
 
+//pusher endpoint
+Route::post('/pusher/auth',[PusherController::class,'auth']);
